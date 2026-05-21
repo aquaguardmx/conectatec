@@ -1,7 +1,7 @@
 // frontend/composables/useAuth.ts
 
 export const useAuth = () => {
-  const apiUrl = 'http://localhost:8000/api'
+  const apiUrl = 'http://127.0.0.1:8001/api'
 
   // --- REGISTRO ---
   const registerStudent = async (formData: any) => {

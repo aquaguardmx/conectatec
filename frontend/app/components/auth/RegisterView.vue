@@ -13,6 +13,11 @@
           <p class="text-[14px] font-medium text-[#6b7280]">Ingresa tus datos institucionales</p>
         </div>
 
+        <div v-if="errorMessage" class="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          <p class="font-semibold">Error al registrar</p>
+          <p class="mt-1">{{ errorMessage }}</p>
+        </div>
+
         <!-- Formulario -->
         <form class="space-y-4" @submit.prevent="handleRegister">
 
@@ -170,6 +175,7 @@ const form = reactive({
 
 const loading = ref(false)
 const showPassword = ref(false)
+const errorMessage = ref('')
 const { registerStudent } = useAuth()
 
 function setRole(newRole: string) {
@@ -177,6 +183,7 @@ function setRole(newRole: string) {
 }
 
 async function handleRegister() {
+  errorMessage.value = ''
   // --- 1. VALIDACIÓN DE CORREO ---
   const emailRegex = /^[a-zA-Z0-9._%+-]+@orizaba\.tecnm\.mx$/;
   if (!emailRegex.test(form.email)) {
@@ -224,7 +231,23 @@ async function handleRegister() {
 
   } catch (err: any) {
     console.error('Error:', err)
-    alert("Ocurrió un error al registrar la cuenta.");
+
+    const responseData = err?.data || err?.response?.data || null
+    if (responseData) {
+      if (responseData.errors) {
+        errorMessage.value = Object.values(responseData.errors)
+          .flat()
+          .join(' ')
+      } else if (responseData.message) {
+        errorMessage.value = responseData.message
+      } else {
+        errorMessage.value = JSON.stringify(responseData)
+      }
+    } else if (err?.message) {
+      errorMessage.value = err.message
+    } else {
+      errorMessage.value = 'Ocurrió un error inesperado al registrar la cuenta.'
+    }
   } finally {
     loading.value = false
   }

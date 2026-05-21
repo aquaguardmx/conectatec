@@ -17,7 +17,8 @@ const form = reactive({
 
 // Estado de validación
 const errors = reactive({
-    cardNumber: false
+    cardNumber: false,
+    expiry: false
 });
 
 // Datos del pedido dinámicos
@@ -43,6 +44,13 @@ const subtotal = computed(() => {
 
 const total = computed(() => subtotal.value);
 
+// Bloquea teclas no numéricas en el campo de tarjeta (permite: dígitos, Backspace, Delete, flechas, Tab)
+const onlyDigitsKeydown = (e) => {
+    const allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Tab', 'Home', 'End'];
+    if (allowed.includes(e.key)) return;
+    if (!/^\d$/.test(e.key)) e.preventDefault();
+};
+
 // Formateador simple para el número de tarjeta (añade espacios cada 4 dígitos)
 const formatCardNumber = (e) => {
     let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
@@ -58,14 +66,35 @@ const formatExpiry = (e) => {
     } else {
         form.expiry = value;
     }
+    // Limpiar error mientras el usuario escribe
+    errors.expiry = false;
 };
 
 const processPayment = () => {
-    // Validación simple
+    // Validar número de tarjeta (16 dígitos)
     const cleanNumber = form.cardNumber.replace(/\s/g, '');
     errors.cardNumber = !/^\d{16}$/.test(cleanNumber);
 
-    if (!errors.cardNumber) {
+    // Validar fecha de expiración: debe ser MM/YY válido y mayor al mes actual
+    errors.expiry = false;
+    const expiryMatch = form.expiry.match(/^(\d{2})\/(\d{2})$/);
+    if (!expiryMatch) {
+        errors.expiry = true;
+    } else {
+        const month = parseInt(expiryMatch[1], 10);
+        const year  = parseInt('20' + expiryMatch[2], 10);
+        const now   = new Date();
+        const currentYear  = now.getFullYear();
+        const currentMonth = now.getMonth() + 1; // 1-12
+
+        if (month < 1 || month > 12) {
+            errors.expiry = true;
+        } else if (year < currentYear || (year === currentYear && month <= currentMonth)) {
+            errors.expiry = true;
+        }
+    }
+
+    if (!errors.cardNumber && !errors.expiry) {
         // Guardar información temporal para la confirmación del pago
         sessionStorage.setItem('paymentDetails', JSON.stringify({
             nombre_tarjeta: form.cardholder,
@@ -140,9 +169,9 @@ const processPayment = () => {
                                 <label class="block text-sm font-semibold text-on-surface-variant ml-1">Número de
                                     Tarjeta</label>
                                 <div class="relative group">
-                                    <input :value="form.cardNumber" @input="formatCardNumber"
+                                    <input :value="form.cardNumber" @input="formatCardNumber" @keydown="onlyDigitsKeydown"
                                         class="w-full bg-surface-container-low border-none rounded-lg py-4 px-12 focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-all text-on-surface"
-                                        placeholder="0000 0000 0000 0000" type="text" maxlength="19" />
+                                        placeholder="0000 0000 0000 0000" type="text" inputmode="numeric" maxlength="19" />
                                     <span
                                         class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary">credit_card</span>
                                     <div class="absolute right-4 top-1/2 -translate-y-1/2 flex gap-1 opacity-60">
@@ -163,11 +192,16 @@ const processPayment = () => {
                                         Expiración</label>
                                     <div class="relative group">
                                         <input :value="form.expiry" @input="formatExpiry"
-                                            class="w-full bg-surface-container-low border-none rounded-lg py-4 px-12 focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-all text-on-surface"
-                                            placeholder="MM/YY" maxlength="5" type="text" />
+                                            class="w-full bg-surface-container-low border-none rounded-lg py-4 px-12 focus:ring-2 transition-all text-on-surface"
+                                            :class="errors.expiry ? 'ring-2 ring-error bg-error/5' : 'focus:ring-primary focus:bg-surface-container-lowest'"
+                                            placeholder="MM/YY" maxlength="5" type="text" inputmode="numeric" />
                                         <span
                                             class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary">calendar_month</span>
                                     </div>
+                                    <p v-if="errors.expiry" class="text-error text-xs font-medium mt-1 flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-xs">error</span>
+                                        La fecha de expiración debe ser mayor al mes actual
+                                    </p>
                                 </div>
                                 <div class="space-y-2">
                                     <label class="block text-sm font-semibold text-on-surface-variant ml-1">CVV</label>
