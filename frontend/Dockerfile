@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package*.json ./
 
 RUN npm install --include=optional --ignore-scripts
-RUN npm install @oxc-parser/binding-linux-x64-gnu @oxc-transform/binding-linux-x64-gnu --no-save --ignore-scripts
+RUN npm install @oxc-parser/binding-linux-x64-gnu @oxc-transform/binding-linux-x64-gnu @nuxtjs/tailwindcss --no-save --ignore-scripts
 
 COPY . .
 
