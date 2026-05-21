@@ -16,6 +16,7 @@ export default defineNuxtConfig({
 
   // Tus módulos existentes
   modules: [
+  '@nuxtjs/tailwindcss'
   ],
 
   vite: {
