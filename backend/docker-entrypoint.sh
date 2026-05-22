@@ -13,10 +13,11 @@ until php -r "
 try {
     \$dbh = new PDO('pgsql:host=' . getenv('DB_HOST') . ';port=' . getenv('DB_PORT') . ';dbname=' . getenv('DB_DATABASE'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'));
     exit(0);
-} catch (Exception \$e) {
+} catch (PDOException \$e) {
+    fwrite(STDERR, 'Database connection failed: ' . \$e->getMessage() . PHP_EOL);
     exit(1);
 }
-" 2>/dev/null; do
+"; do
     echo "Database not ready yet. Retrying in 2 seconds..."
     sleep 2
 done
