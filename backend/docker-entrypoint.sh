@@ -7,11 +7,11 @@ if [ ! -e "/var/www/public/storage" ]; then
     php /var/www/artisan storage:link --force
 fi
 
-# Check database connection (max 5 retries to prevent blocking health checks)
-echo "Checking database connection..."
-MAX_RETRIES=5
+# Check database connection and run migrations with retries
+echo "Checking database connection and running migrations..."
+MAX_RETRIES=30
 RETRY_COUNT=0
-DB_CONNECTED=0
+MIGRATION_SUCCESS=0
 
 while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
     if php -r "
@@ -19,25 +19,31 @@ while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
         \$dbh = new PDO('pgsql:host=' . getenv('DB_HOST') . ';port=' . getenv('DB_PORT') . ';dbname=' . getenv('DB_DATABASE'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'));
         exit(0);
     } catch (PDOException \$e) {
-        fwrite(STDERR, 'Database connection failed: ' . \$e->getMessage() . PHP_EOL);
         exit(1);
     }
     "; then
         echo "Database is up and running!"
-        DB_CONNECTED=1
-        break
+        
+        # Run migrations
+        echo "Running database migrations..."
+        if php /var/www/artisan migrate --force 2>&1; then
+            echo "Migrations completed successfully!"
+            MIGRATION_SUCCESS=1
+            break
+        else
+            echo "Migration failed, retrying..."
+            RETRY_COUNT=$((RETRY_COUNT+1))
+            sleep 2
+        fi
+    else
+        RETRY_COUNT=$((RETRY_COUNT+1))
+        echo "Database not ready yet (Attempt $RETRY_COUNT/$MAX_RETRIES). Retrying in 2 seconds..."
+        sleep 2
     fi
-    RETRY_COUNT=$((RETRY_COUNT+1))
-    echo "Database not ready yet (Attempt $RETRY_COUNT/$MAX_RETRIES). Retrying in 2 seconds..."
-    sleep 2
 done
 
-if [ $DB_CONNECTED -eq 1 ]; then
-    # Run migrations
-    echo "Running database migrations..."
-    php /var/www/artisan migrate --force
-else
-    echo "WARNING: Could not connect to database after $MAX_RETRIES attempts. Skipping migrations for now so Nginx can start."
+if [ $MIGRATION_SUCCESS -eq 0 ]; then
+    echo "WARNING: Could not run migrations after $MAX_RETRIES attempts. Check database connection."
 fi
 
 # Optimize Laravel Cache
