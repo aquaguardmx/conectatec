@@ -36,6 +36,7 @@ RUN chown -R www-data:www-data /var/www \
 
 # Copy Nginx & Supervisor configuration
 COPY nginx.conf /etc/nginx/nginx.conf
+COPY mime.types /etc/nginx/mime.types
 COPY supervisord.conf /etc/supervisord.conf
 
 # Expose port 80
