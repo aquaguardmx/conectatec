@@ -6,6 +6,7 @@ import { onMounted, ref, computed } from 'vue';
 
 const { obtenerMisProductos, eliminarProducto, isLoading, error } = useProductos();
 const productos = ref<any[]>([]);
+const { storageUrl } = useApiUrl();
 
 const showingDeleteModal = ref(false);
 const productoAEliminar = ref<any>(null);
@@ -43,7 +44,7 @@ const getImageUrl = (imagenPath: string | null) => {
     if (imagenPath.startsWith('http') || imagenPath.startsWith('data:')) {
         return imagenPath;
     }
-    return `http://localhost:8000/storage/${imagenPath}`;
+    return `${storageUrl}/${imagenPath}`;
 };
 
 onMounted(async () => {

@@ -5,6 +5,7 @@ import { useCarrito } from '~/composables/useCarrito';
 
 const router = useRouter();
 const { obtenerCarrito, realizarCompra } = useCarrito();
+const { storageUrl } = useApiUrl();
 
 const cartItems = ref([]);
 const isProcessing = ref(false);
@@ -52,7 +53,7 @@ const orderData = computed(() => {
 
     const firstItem = cartItems.value[0];
     const image = firstItem.producto?.Imagenes
-        ? (firstItem.producto.Imagenes.startsWith('http') ? firstItem.producto.Imagenes : `http://127.0.0.1:8000/storage/${firstItem.producto.Imagenes}`)
+        ? (firstItem.producto.Imagenes.startsWith('http') ? firstItem.producto.Imagenes : `${storageUrl}/${firstItem.producto.Imagenes}`)
         : 'https://placehold.co/400?text=Sin+Imagen';
 
     const extraItems = cartItems.value.length > 1 ? `y ${cartItems.value.length - 1} productos más` : '';

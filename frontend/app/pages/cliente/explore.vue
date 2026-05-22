@@ -6,6 +6,7 @@ import { useProductos } from '~/composables/useProductos';
 
 const route = useRoute();
 const { obtenerTodosProductos, isLoading } = useProductos();
+const { storageUrl } = useApiUrl();
 
 const products = ref([]);
 const favorites = ref([]);
@@ -35,7 +36,7 @@ const fetchProducts = async () => {
             category: p.categoria,
             status: p.estado || 'Nuevo',
             image: p.Imagenes
-                ? (p.Imagenes.startsWith('http') ? p.Imagenes : `http://127.0.0.1:8000/storage/${p.Imagenes}`)
+                ? (p.Imagenes.startsWith('http') ? p.Imagenes : `${storageUrl}/${p.Imagenes}`)
                 : 'https://placehold.co/600x400?text=Sin+Imagen',
             rating: (Math.random() * (5 - 4) + 4).toFixed(1),
             isFeatured: Math.random() > 0.8 // Algunos destacados aleatoriamente para demo

@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 
 export const useCarrito = () => {
+  const { apiUrl } = useApiUrl()
   const isLoading = ref(false)
   const error = ref<string | null>(null)
   const validationErrors = ref<Record<string, string[]>>({})
@@ -11,7 +12,7 @@ export const useCarrito = () => {
     error.value = null
     try {
       const tokenCookie = useCookie('auth_token')
-      const response: any = await $fetch('http://127.0.0.1:8000/api/carrito', {
+      const response: any = await $fetch(`${apiUrl}/carrito`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -34,7 +35,7 @@ export const useCarrito = () => {
     validationErrors.value = {}
     try {
       const tokenCookie = useCookie('auth_token')
-      const response: any = await $fetch('http://127.0.0.1:8000/api/carrito', {
+      const response: any = await $fetch(`${apiUrl}/carrito`, {
         method: 'POST',
         body: {
           id_producto,
@@ -66,7 +67,7 @@ export const useCarrito = () => {
     error.value = null
     try {
       const tokenCookie = useCookie('auth_token')
-      const response: any = await $fetch(`http://127.0.0.1:8000/api/carrito/${idCarrito}`, {
+      const response: any = await $fetch(`${apiUrl}/carrito/${idCarrito}`, {
         method: 'PUT',
         body: { Cantidad: cantidad },
         headers: {
@@ -89,7 +90,7 @@ export const useCarrito = () => {
     error.value = null
     try {
       const tokenCookie = useCookie('auth_token')
-      const response: any = await $fetch(`http://127.0.0.1:8000/api/carrito/${idCarrito}`, {
+      const response: any = await $fetch(`${apiUrl}/carrito/${idCarrito}`, {
         method: 'DELETE',
         headers: {
           'Accept': 'application/json',
@@ -118,7 +119,7 @@ export const useCarrito = () => {
     error.value = null
     try {
       const tokenCookie = useCookie('auth_token')
-      const response: any = await $fetch('http://127.0.0.1:8000/api/carrito/checkout', {
+      const response: any = await $fetch(`${apiUrl}/carrito/checkout`, {
         method: 'POST',
         body: { 
           metodo_pago:    metodoPago,

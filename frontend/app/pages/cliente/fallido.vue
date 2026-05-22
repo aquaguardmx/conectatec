@@ -4,6 +4,7 @@ import { onMounted, ref } from 'vue';
 import { useProductos } from '~/composables/useProductos';
 
 const { obtenerTodosProductos, isLoading } = useProductos();
+const { storageUrl } = useApiUrl();
 const suggestedProducts = ref([]);
 
 onMounted(async () => {
@@ -19,7 +20,7 @@ onMounted(async () => {
                 price: parseFloat(p.Precio),
                 description: p.Descripcion,
                 image: p.Imagenes
-                    ? (p.Imagenes.startsWith('http') ? p.Imagenes : `http://127.0.0.1:8000/storage/${p.Imagenes}`)
+                    ? (p.Imagenes.startsWith('http') ? p.Imagenes : `${storageUrl}/${p.Imagenes}`)
                     : 'https://placehold.co/600x400?text=Tecnología'
             }));
     }

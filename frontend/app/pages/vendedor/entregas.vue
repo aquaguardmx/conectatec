@@ -171,6 +171,8 @@ import { useCookie } from '#app'
 import SideNavBar from '~/components/vendedor/dashboard/SideNavBar.vue'
 import TopNavBar from '~/components/vendedor/dashboard/TopNavBar.vue'
 
+const { storageUrl, apiUrl } = useApiUrl()
+
 const isLoading = ref(false)
 const pedidos = ref([])
 
@@ -212,7 +214,7 @@ const formatearHora = (hora) => {
 const getImageUrl = (img) => {
     if (!img) return ''
     if (img.startsWith('http') || img.startsWith('data:')) return img
-    return `http://127.0.0.1:8000/storage/${img}`
+    return `${storageUrl}/${img}`
 }
 
 // Estadísticas
@@ -235,7 +237,7 @@ const cargarEntregas = async () => {
     isLoading.value = true
     try {
         const token = useCookie('auth_token')
-        const response = await $fetch('http://127.0.0.1:8000/api/vendedor/entregas', {
+        const response = await $fetch(`${apiUrl}/vendedor/entregas`, {
             headers: {
                 'Accept': 'application/json',
                 'Authorization': `Bearer ${token.value}`
@@ -254,7 +256,7 @@ const marcarEntregado = async (pedido) => {
     pedido._marcando = true
     try {
         const token = useCookie('auth_token')
-        await $fetch(`http://127.0.0.1:8000/api/vendedor/entregas/${pedido.idPedidos}/entregar`, {
+        await $fetch(`${apiUrl}/vendedor/entregas/${pedido.idPedidos}/entregar`, {
             method: 'PUT',
             headers: {
                 'Accept': 'application/json',

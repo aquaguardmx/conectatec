@@ -212,6 +212,7 @@ import { useCarrito } from '~/composables/useCarrito';
 const router = useRouter();
 const { obtenerTodosProductos, isLoading } = useProductos();
 const { agregarAlCarrito } = useCarrito();
+const { storageUrl } = useApiUrl();
 const products = ref([]);
 const sellers = ref([]);
 const selectedCategory = ref('all');
@@ -240,7 +241,7 @@ const fetchProducts = async () => {
             rating: (Math.random() * (5 - 4) + 4).toFixed(1), // Rating aleatorio entre 4 y 5
             category: p.categoria || 'Otros',
             image: p.Imagenes
-                ? (p.Imagenes.startsWith('http') ? p.Imagenes : `http://127.0.0.1:8000/storage/${p.Imagenes}`)
+                ? (p.Imagenes.startsWith('http') ? p.Imagenes : `${storageUrl}/${p.Imagenes}`)
                 : 'https://placehold.co/600x400?text=Sin+Imagen',
             badge: p.estado === 'Nuevo' ? 'Nuevo' : (p.estado === 'reacondicionado' ? 'Oferta' : null),
             badgeColor: p.estado === 'Nuevo' ? 'bg-green-500' : 'bg-primary'

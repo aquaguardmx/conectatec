@@ -1,6 +1,8 @@
 import { ref } from 'vue'
 
 export const useProductos = () => {
+  const { apiUrl } = useApiUrl()
+
   // Estados para manejar la interfaz de usuario
   const isLoading = ref(false)
   const error = ref<string | null>(null)
@@ -14,10 +16,9 @@ export const useProductos = () => {
 
     try {
       // 2. Hacemos la petición a tu API de Laravel
-      // Nota: Cambia el puerto 8000 si tu servidor de Laravel usa uno distinto
       const tokenCookie = useCookie('auth_token')
       
-      const response = await $fetch('http://localhost:8000/api/productos', {
+      const response = await $fetch(`${apiUrl}/productos`, {
         method: 'POST',
         body: productoData,
         headers: {
@@ -54,7 +55,7 @@ export const useProductos = () => {
     error.value = null
     try {
       const tokenCookie = useCookie('auth_token')
-      const response: any = await $fetch('http://localhost:8000/api/productos', {
+      const response: any = await $fetch(`${apiUrl}/productos`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -74,7 +75,7 @@ export const useProductos = () => {
     error.value = null
     try {
       const tokenCookie = useCookie('auth_token')
-      const response: any = await $fetch(`http://localhost:8000/api/productos/${id}`, {
+      const response: any = await $fetch(`${apiUrl}/productos/${id}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
@@ -104,7 +105,7 @@ export const useProductos = () => {
         productoData.append('_method', 'PUT')
       }
 
-      const response: any = await $fetch(`http://localhost:8000/api/productos/${id}`, {
+      const response: any = await $fetch(`${apiUrl}/productos/${id}`, {
         method: fetchMethod,
         body: productoData,
         headers: {
@@ -131,7 +132,7 @@ export const useProductos = () => {
     error.value = null
     try {
       const tokenCookie = useCookie('auth_token')
-      const response: any = await $fetch(`http://localhost:8000/api/productos/${id}`, {
+      const response: any = await $fetch(`${apiUrl}/productos/${id}`, {
         method: 'DELETE',
         headers: {
           'Accept': 'application/json',
@@ -151,8 +152,7 @@ export const useProductos = () => {
     isLoading.value = true
     error.value = null
     try {
-      // Usamos 127.0.0.1 para evitar problemas de resolución de localhost en algunos sistemas
-      const response: any = await $fetch('http://127.0.0.1:8000/api/public/productos', {
+      const response: any = await $fetch(`${apiUrl}/public/productos`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json'
@@ -177,7 +177,7 @@ export const useProductos = () => {
     isLoading.value = true
     error.value = null
     try {
-      const response: any = await $fetch(`http://127.0.0.1:8000/api/public/productos/${id}`, {
+      const response: any = await $fetch(`${apiUrl}/public/productos/${id}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json'

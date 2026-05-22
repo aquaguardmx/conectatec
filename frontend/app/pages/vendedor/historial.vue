@@ -195,6 +195,7 @@ import TopNavBar from '~/components/vendedor/dashboard/TopNavBar.vue'
 
 const router = useRouter()
 const { obtenerMisProductos } = useProductos()
+const { storageUrl } = useApiUrl()
 
 const userNameCookie = useCookie('user_name')
 const userRoleCookie = useCookie('user_role')
@@ -239,7 +240,7 @@ const getImageUrl = (imagenPath) => {
     if (imagenPath.startsWith('http') || imagenPath.startsWith('data:')) {
         return imagenPath;
     }
-    return `http://localhost:8000/storage/${imagenPath}`;
+    return `${storageUrl}/${imagenPath}`;
 };
 
 // -- dynamic Publications Data --

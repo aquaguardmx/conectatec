@@ -128,6 +128,8 @@ const producto = ref({
     Imagenes: null
 });
 
+const { storageUrl } = useApiUrl();
+
 // Rescatar propiedad pasada desde update-product
 if (typeof window !== 'undefined' && window.history.state?.producto) {
     producto.value = { ...producto.value, ...window.history.state.producto };
@@ -139,7 +141,7 @@ const getImageUrl = computed(() => {
     if (imagenPath.startsWith('http') || imagenPath.startsWith('data:')) {
         return imagenPath;
     }
-    return `http://localhost:8000/storage/${imagenPath}`;
+    return `${storageUrl}/${imagenPath}`;
 });
 </script>
 

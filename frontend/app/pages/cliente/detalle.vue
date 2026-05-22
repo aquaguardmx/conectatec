@@ -9,6 +9,7 @@ const route = useRoute();
 const router = useRouter();
 const { obtenerProductoPublico, obtenerTodosProductos, isLoading } = useProductos();
 const { agregarAlCarrito, isLoading: isCartLoading } = useCarrito();
+const { storageUrl } = useApiUrl();
 
 const product = ref<any>(null);
 const cantidadSeleccionada = ref(1);
@@ -50,7 +51,7 @@ onMounted(async () => {
             if (product.value.Imagenes) {
                 product.value.image = product.value.Imagenes.startsWith('http')
                     ? product.value.Imagenes
-                    : `http://127.0.0.1:8000/storage/${product.value.Imagenes}`;
+                    : `${storageUrl}/${product.value.Imagenes}`;
             } else {
                 product.value.image = 'https://placehold.co/600x400?text=Sin+Imagen';
             }

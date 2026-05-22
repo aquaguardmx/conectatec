@@ -25,7 +25,7 @@
                         <div v-for="compra in compras" :key="compra.producto.id_producto" class="bg-surface-container-low rounded-xl p-6 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow border border-outline-variant/10">
                             <div class="flex gap-6 mb-6">
                                 <div class="w-24 h-24 rounded-lg bg-surface-container-lowest flex items-center justify-center overflow-hidden shrink-0 border border-outline-variant/20">
-                                    <img :src="compra.producto.Imagenes?.startsWith('http') ? compra.producto.Imagenes : `http://127.0.0.1:8000/storage/${compra.producto.Imagenes}`" class="w-full h-full object-cover" />
+                                    <img :src="compra.producto.Imagenes?.startsWith('http') ? compra.producto.Imagenes : `${storageUrl}/${compra.producto.Imagenes}`" class="w-full h-full object-cover" />
                                 </div>
                                 <div>
                                     <h3 class="text-xl font-bold text-on-surface line-clamp-2">{{ compra.producto.Nombre }}</h3>
@@ -65,7 +65,7 @@
                         <div class="p-8 overflow-y-auto">
                             <div class="flex items-center gap-6 mb-8 bg-surface-container-low p-4 rounded-xl">
                                 <div class="w-16 h-16 rounded-lg bg-surface-container-lowest overflow-hidden border border-outline-variant/20 shrink-0">
-                                    <img :src="productoSeleccionado.Imagenes?.startsWith('http') ? productoSeleccionado.Imagenes : `http://127.0.0.1:8000/storage/${productoSeleccionado.Imagenes}`" class="w-full h-full object-cover" />
+                                    <img :src="productoSeleccionado.Imagenes?.startsWith('http') ? productoSeleccionado.Imagenes : `${storageUrl}/${productoSeleccionado.Imagenes}`" class="w-full h-full object-cover" />
                                 </div>
                                 <div>
                                     <h3 class="font-bold text-lg text-on-surface line-clamp-1">{{ productoSeleccionado.Nombre }}</h3>
@@ -123,6 +123,7 @@ import StarRating from '~/components/cliente/StarRating.vue';
 import { useResenas } from '~/composables/useResenas';
 
 const { obtenerComprasPendientes, enviarResena } = useResenas();
+const { storageUrl } = useApiUrl();
 
 const compras = ref([]);
 const isLoadingCompras = ref(true);

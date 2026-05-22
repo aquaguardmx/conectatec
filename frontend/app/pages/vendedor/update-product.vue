@@ -214,6 +214,7 @@ import { useProductos } from '~/composables/useProductos'
 const router = useRouter()
 const route = useRoute()
 const { obtenerProducto, actualizarProducto, eliminarProducto, isLoading, error, validationErrors } = useProductos()
+const { storageUrl } = useApiUrl()
 
 // ID del producto extraído de la ruta
 const productId = ref(route.query.id || '')
@@ -270,7 +271,7 @@ onMounted(async () => {
             if (p.Imagenes.startsWith('http') || p.Imagenes.startsWith('data:')) {
                 images.value = [p.Imagenes]
             } else {
-                images.value = [`http://localhost:8000/storage/${p.Imagenes}`]
+                images.value = [`${storageUrl}/${p.Imagenes}`]
             }
         }
     }

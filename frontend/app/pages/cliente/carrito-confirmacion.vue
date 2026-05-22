@@ -6,6 +6,7 @@ import { useProductos } from '~/composables/useProductos';
 const router = useRouter();
 const route = useRoute();
 const { obtenerProductoPublico } = useProductos();
+const { storageUrl } = useApiUrl();
 
 const product = ref({
     name: 'Cargando producto...',
@@ -26,7 +27,7 @@ onMounted(async () => {
                 quantity: 1,
                 price: parseFloat(data.Precio),
                 image: data.Imagenes
-                    ? (data.Imagenes.startsWith('http') ? data.Imagenes : `http://127.0.0.1:8000/storage/${data.Imagenes}`)
+                    ? (data.Imagenes.startsWith('http') ? data.Imagenes : `${storageUrl}/${data.Imagenes}`)
                     : 'https://placehold.co/400?text=Sin+Imagen',
                 category: data.categoria || 'MARKETPLACE'
             };

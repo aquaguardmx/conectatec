@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 
 export const useResenas = () => {
+    const { apiUrl } = useApiUrl()
     const isLoading = ref(false)
     const error = ref<string | null>(null)
 
@@ -11,7 +12,7 @@ export const useResenas = () => {
             const tokenCookie = useCookie('auth_token')
             if (!tokenCookie.value) throw new Error('No estás autenticado')
 
-            const response: any = await $fetch('http://127.0.0.1:8000/api/resenas/compras', {
+            const response: any = await $fetch(`${apiUrl}/resenas/compras`, {
                 headers: {
                     'Accept': 'application/json',
                     'Authorization': `Bearer ${tokenCookie.value}`
@@ -33,7 +34,7 @@ export const useResenas = () => {
             const tokenCookie = useCookie('auth_token')
             if (!tokenCookie.value) throw new Error('No estás autenticado')
 
-            const response: any = await $fetch('http://127.0.0.1:8000/api/resenas', {
+            const response: any = await $fetch(`${apiUrl}/resenas`, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',

@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 
 export const usePedidos = () => {
+    const { apiUrl } = useApiUrl()
     const isLoading = ref(false)
     const error = ref<string | null>(null)
 
@@ -11,7 +12,7 @@ export const usePedidos = () => {
             const tokenCookie = useCookie('auth_token')
             if (!tokenCookie.value) throw new Error('No estás autenticado')
 
-            const response: any = await $fetch('http://127.0.0.1:8000/api/pedidos', {
+            const response: any = await $fetch(`${apiUrl}/pedidos`, {
                 headers: {
                     'Accept': 'application/json',
                     'Authorization': `Bearer ${tokenCookie.value}`

@@ -6,6 +6,7 @@ import Header from '../../components/cliente/Header.vue';
 
 const router = useRouter();
 const { obtenerCarrito, actualizarCantidad, eliminarDelCarrito, isLoading } = useCarrito();
+const { storageUrl } = useApiUrl();
 
 const cartItems = ref<any[]>([]);
 const isProcessing = ref(false);
@@ -19,7 +20,7 @@ const fetchCart = async () => {
             if (item.producto && item.producto.Imagenes) {
                 item.producto.image = item.producto.Imagenes.startsWith('http')
                     ? item.producto.Imagenes
-                    : `http://127.0.0.1:8000/storage/${item.producto.Imagenes}`;
+                    : `${storageUrl}/${item.producto.Imagenes}`;
             } else if (item.producto) {
                 item.producto.image = 'https://placehold.co/400?text=Sin+Imagen';
             }

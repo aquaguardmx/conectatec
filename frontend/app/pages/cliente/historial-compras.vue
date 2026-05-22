@@ -108,6 +108,7 @@ import { usePedidos } from '~/composables/usePedidos';
 
 const router = useRouter();
 const { obtenerPedidos, isLoading } = usePedidos();
+const { storageUrl } = useApiUrl();
 const orders = ref([]);
 
 const formatPrice = (price) => {
@@ -134,7 +135,7 @@ onMounted(async () => {
                 price: p.producto ? parseFloat(p.producto.Precio) : 0,
                 status: status,
                 image: p.producto?.Imagenes
-                    ? (p.producto.Imagenes.startsWith('http') ? p.producto.Imagenes : `http://127.0.0.1:8000/storage/${p.producto.Imagenes}`)
+                    ? (p.producto.Imagenes.startsWith('http') ? p.producto.Imagenes : `${storageUrl}/${p.producto.Imagenes}`)
                     : 'https://placehold.co/100x100?text=Sin+Imagen',
                 producto_id: p.id_producto
             };

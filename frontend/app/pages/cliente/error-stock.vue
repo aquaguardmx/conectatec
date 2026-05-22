@@ -10,6 +10,7 @@ const router = useRouter();
 const route = useRoute();
 const { obtenerProductoPublico } = useProductos();
 const { agregarAlCarrito } = useCarrito();
+const { storageUrl } = useApiUrl();
 
 const product = ref({
     id: null,
@@ -33,7 +34,7 @@ onMounted(async () => {
                 name: data.Nombre,
                 sku: `SKU-${data.id_producto}`, // El backend no tiene sku, improvisamos uno
                 image: data.Imagenes
-                    ? (data.Imagenes.startsWith('http') ? data.Imagenes : `http://127.0.0.1:8000/storage/${data.Imagenes}`)
+                    ? (data.Imagenes.startsWith('http') ? data.Imagenes : `${storageUrl}/${data.Imagenes}`)
                     : 'https://placehold.co/400?text=Sin+Imagen',
                 maxStock: stock
             };

@@ -115,6 +115,8 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue'
 
+const { storageUrl } = useApiUrl()
+
 const producto = ref({
     Nombre: 'Producto',
     Precio: 0,
@@ -130,7 +132,7 @@ const getImageUrl = computed(() => {
         return producto.value.Imagenes
     }
     // Asumiendo que el backend de Laravel expone Storage local en el puerto 8000
-    return `http://localhost:8000/storage/${producto.value.Imagenes}`
+    return `${storageUrl}/${producto.value.Imagenes}`
 })
 
 onMounted(() => {

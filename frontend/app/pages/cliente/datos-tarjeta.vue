@@ -5,6 +5,7 @@ import { useCarrito } from '~/composables/useCarrito';
 
 const router = useRouter();
 const { obtenerCarrito } = useCarrito();
+const { storageUrl } = useApiUrl();
 
 // Estado del formulario
 const form = reactive({
@@ -241,7 +242,7 @@ const processPayment = () => {
                             <div v-for="item in cartItems" :key="item.idCarrito"
                                 class="flex items-center gap-4 bg-surface-container-lowest p-3 rounded-lg">
                                 <div class="w-16 h-16 bg-surface-variant rounded-lg flex items-center justify-center overflow-hidden">
-                                    <img v-if="item.producto?.Imagenes" :src="item.producto.Imagenes.startsWith('http') ? item.producto.Imagenes : `http://127.0.0.1:8000/storage/${item.producto.Imagenes}`" class="w-full h-full object-cover" />
+                                    <img v-if="item.producto?.Imagenes" :src="item.producto.Imagenes.startsWith('http') ? item.producto.Imagenes : `${storageUrl}/${item.producto.Imagenes}`" class="w-full h-full object-cover" />
                                     <span v-else class="material-symbols-outlined text-primary text-3xl">shopping_bag</span>
                                 </div>
                                 <div class="flex-1">
