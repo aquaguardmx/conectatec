@@ -7,6 +7,21 @@ if [ ! -e "/var/www/public/storage" ]; then
     php /var/www/artisan storage:link --force
 fi
 
+# Wait for database connection
+echo "Waiting for database connection..."
+until php -r "
+try {
+    \$dbh = new PDO('pgsql:host=' . getenv('DB_HOST') . ';port=' . getenv('DB_PORT') . ';dbname=' . getenv('DB_DATABASE'), getenv('DB_USERNAME'), getenv('DB_PASSWORD'));
+    exit(0);
+} catch (Exception \$e) {
+    exit(1);
+}
+" 2>/dev/null; do
+    echo "Database not ready yet. Retrying in 2 seconds..."
+    sleep 2
+done
+echo "Database is up and running!"
+
 # Run migrations
 echo "Running database migrations..."
 php /var/www/artisan migrate --force
