@@ -8,6 +8,10 @@ RUN npm install --include=optional
 
 COPY . .
 
+# Build con variables de entorno
+ARG NUXT_PUBLIC_API_BASE=http://localhost:8000
+ENV NUXT_PUBLIC_API_BASE=${NUXT_PUBLIC_API_BASE}
+
 RUN npm run build
 
 EXPOSE 3000

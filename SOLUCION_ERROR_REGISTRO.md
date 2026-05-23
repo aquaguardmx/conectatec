@@ -1,27 +1,34 @@
 # Solución: Error "Failed to fetch" en Registro (Producción)
 
-## Problemas Identificados y Corregidos
+## 🔴 Problemas Identificados y Corregidos
 
-### 1. **Tabla `personal_access_tokens` no existe**
-El error principal en los logs es: `SQLSTATE[42P01]: Undefined table: relation "personal_access_tokens" does not exist`
+### 1. **Tabla `personal_access_tokens` no existe** (Backend)
+El error en los logs: `SQLSTATE[42P01]: Undefined table: relation "personal_access_tokens" does not exist`
 
 **Causa:** Las migraciones de Laravel Sanctum no se ejecutaron correctamente.
 
 **Solución:** 
 ```bash
-# Ejecuta en el contenedor Docker del backend
 docker-compose exec backend php artisan migrate --force
 ```
 
-### 2. **Configuración de CORS/Sanctum**
-El dominio de producción no estaba en la lista de dominios permitidos.
+### 2. **Frontend no encuentra el Backend API** (Frontend)
+Error: "Failed to fetch" en el navegador aunque el servidor esté levantado en Coolify.
+
+**Causa:** `NUXT_PUBLIC_API_BASE` no está disponible durante el build de Nuxt, por lo que el frontend no sabe a dónde hacer las peticiones.
 
 **Cambios realizados:**
+- ✅ Actualizado `frontend/Dockerfile` para aceptar `NUXT_PUBLIC_API_BASE` como argumento de build
+- ✅ Configurado `docker-compose.yml` para pasar el argumento al build
+- ✅ Creado `.env.example` con variables necesarias
+
+### 3. **Configuración de CORS/Sanctum** (Backend)
+**Cambios realizados:**
 - ✅ Actualizado `config/sanctum.php` para usar variable de entorno
-- ✅ Configurado `.env` con `SANCTUM_STATEFUL_DOMAINS=vgoc4gsscwk0o8okcg4ggg08.172.245.228.126.sslip.io`
+- ✅ Configurado `.env` con `SANCTUM_STATEFUL_DOMAINS`
 - ✅ Habilitado middleware CORS en `bootstrap/app.php`
 
-### 3. **Configuración de Entorno (.env)**
+### 4. **Configuración de Entorno (.env)** (Backend)
 **Cambios realizados:**
 - ✅ `APP_ENV=production`
 - ✅ `APP_DEBUG=false`
@@ -29,79 +36,107 @@ El dominio de producción no estaba en la lista de dominios permitidos.
 - ✅ `DB_HOST=db` (para Docker)
 - ✅ `SANCTUM_STATEFUL_DOMAINS` configurado
 
-### 4. **Script de Entrada Docker Mejorado**
+### 5. **Script de Entrada Docker Mejorado** (Backend)
 El `docker-entrypoint.sh` ahora:
 - Intenta conexión a la BD hasta 30 veces (antes 5)
 - Ejecuta migraciones en bucle hasta que tenga éxito
 - Proporciona mejor logging
 
-## Pasos para Desplegar en Producción
+## 🚀 Pasos para Desplegar en Coolify
 
-### Paso 1: Reconstruir el contenedor
-```bash
-docker-compose up -d --build
+### Paso 1: Configurar Variables de Entorno en Coolify
+
+Ve a **Environment Variables** en tu proyecto de Coolify y agrega:
+
+```
+BACKEND_URL=http://vgoc4gsscwk0o8okcg4ggg08.172.245.228.126.sslip.io
+NUXT_PUBLIC_API_BASE=http://vgoc4gsscwk0o8okcg4ggg08.172.245.228.126.sslip.io
+DB_DATABASE=tienda_sistema
+DB_USERNAME=postgres
+DB_PASSWORD=1307
 ```
 
-### Paso 2: Ejecutar Migraciones (si es necesario)
+⚠️ **IMPORTANTE:** La variable se llama `NUXT_PUBLIC_API_BASE` (sin guión bajo antes de PUBLIC)
+
+### Paso 2: Reconstruir el Proyecto
+
+1. En Coolify: **Projects → Deployments**
+2. Haz clic en **"Deploy"**
+3. Espera a que se reconstruyan ambos servicios (puede tardar 5-10 minutos)
+
+### Paso 3: Ejecutar Migraciones (en caso necesario)
+
+Si es la primera vez:
 ```bash
 docker-compose exec backend php artisan migrate --force
 ```
 
-### Paso 3: Verificar que todo funcione
-```bash
-# Verifica los logs del backend
-docker-compose logs -f backend
+### Paso 4: Verificar que Funcione
 
-# Prueba el endpoint de registro
-curl -X POST http://vgoc4gsscwk0o8okcg4ggg08.172.245.228.126.sslip.io/api/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "nombre": "Test User",
-    "Matricula": "TEST001",
-    "Correo_Institucional": "test@example.com",
-    "contrasena": "password123",
-    "Telefono": "1234567890",
-    "Rol": "usuario"
-  }'
-```
+1. **En Coolify, revisa los logs del build** - Busca `Building with NUXT_PUBLIC_API_BASE=...`
+2. **Abre la página de registro en tu navegador**
+3. **Abre la consola (F12 → Network)**
+4. **Intenta registrarte**
+5. **Deberías ver una petición POST a `/api/register` exitosa**
 
-## Archivos Modificados
+## 📋 Archivos Modificados
 
-1. **backend/.env** - Configuración de producción
-2. **backend/config/sanctum.php** - Eliminada línea comentada
-3. **backend/bootstrap/app.php** - Middleware CORS habilitado
-4. **backend/docker-entrypoint.sh** - Lógica de reintentos mejorada
+| Archivo | Cambio |
+|---------|--------|
+| `backend/.env` | Configuración de producción |
+| `backend/config/sanctum.php` | CORS habilitado |
+| `backend/bootstrap/app.php` | Middleware CORS |
+| `backend/docker-entrypoint.sh` | Reintentos mejorados |
+| `frontend/Dockerfile` | **NUEVO: ARG para NUXT_PUBLIC_API_BASE** |
+| `docker-compose.yml` | Build args agregados |
+| `.env.example` | **NUEVO: Variables de ejemplo** |
 
-## Posibles Problemas y Soluciones
+## 🔍 Solucionar si Persiste el Error
 
-### Si persiste el error "Failed to fetch"
-1. Verifica CORS en los headers de respuesta:
-```bash
-curl -vvv -X OPTIONS http://vgoc4gsscwk0o8okcg4ggg08.172.245.228.126.sslip.io/api/register
-```
+### Si el error "Failed to fetch" sigue apareciendo:
 
-2. Revisa los logs del backend:
-```bash
-docker-compose logs backend | tail -100
-```
+1. **Verifica las variables en Coolify:**
+   - Ve a Environment Variables
+   - Confirma que `NUXT_PUBLIC_API_BASE` está exactamente así (con PUBLIC, no con guión bajo)
 
-3. Asegúrate que el dominio en `.env` coincida exactamente con el dominio del frontend
+2. **Limpia el caché de build:**
+   - En Coolify: **Projects → Settings → Clear Build Cache**
+   - Luego redeploy
 
-### Si la migración falla
-1. Verifica que PostgreSQL está corriendo:
-```bash
-docker-compose ps
-```
+3. **Verifica los logs:**
+   ```bash
+   # Frontend debe mostrar la URL correcta
+   # "Building with NUXT_PUBLIC_API_BASE=http://vgoc4gsscwk0o8okcg4ggg08..."
+   
+   # Backend debe responder a OPTIONS (CORS preflight)
+   curl -vvv -X OPTIONS http://vgoc4gsscwk0o8okcg4ggg08.172.245.228.126.sslip.io/api/register
+   ```
 
-2. Verifica credenciales de BD:
-```bash
-docker-compose exec db psql -U postgres -d tienda_sistema -c "\dt"
-```
+4. **Test manual en la consola del navegador:**
+   ```javascript
+   fetch('http://vgoc4gsscwk0o8okcg4ggg08.172.245.228.126.sslip.io/api/register', {
+     method: 'POST',
+     headers: {'Content-Type': 'application/json'},
+     body: JSON.stringify({
+       nombre: 'Test',
+       Matricula: 'TEST001',
+       Correo_Institucional: 'test@orizaba.tecnm.mx',
+       contrasena: 'Password123!',
+       Telefono: '5551234567',
+       Rol: 'estudiante'
+     })
+   })
+   .then(r => r.json())
+   .then(d => console.log(d))
+   .catch(e => console.error(e))
+   ```
 
-## Cambios en Producción
+## 📊 Checklist Final
 
-Después de hacer deploy:
-1. Reconstruir images: `docker-compose build`
-2. Reiniciar servicios: `docker-compose up -d`
-3. Ejecutar migraciones: `docker-compose exec backend php artisan migrate --force`
-4. Limpiar cache: `docker-compose exec backend php artisan cache:clear`
+- [ ] Variables de entorno configuradas en Coolify
+- [ ] Proyecto reconstruido (deploy completado)
+- [ ] Migraciones ejecutadas
+- [ ] `NUXT_PUBLIC_API_BASE` visible en los logs del build
+- [ ] Página de registro carga sin errores
+- [ ] Petición POST al API se completa exitosamente
+- [ ] Usuario se registra correctamente
